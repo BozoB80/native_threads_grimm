@@ -25,7 +25,6 @@ export const createUser = internalMutation({
       ...args,
       username: args.username || `${args.first_name}${args.last_name}`,
     });
-
     return userId;
   },
 });

@@ -1,8 +1,6 @@
 import { Colors } from "@/constants/Colors";
-import { api } from "@/convex/_generated/api";
-import { useOAuth } from "@clerk/clerk-expo";
+import { SignedIn, useAuth, useOAuth, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "convex/react";
 import {
   StyleSheet,
   Text,
@@ -17,18 +15,18 @@ export default function Index() {
   const { startOAuthFlow: startGoogleFlow } = useOAuth({
     strategy: "oauth_google",
   });
-  const users = useQuery(api.users.getAllUsers);
+  const { signOut } = useAuth();
+  const { user } = useUser();
 
   const handleFacebookLogin = async () => {
     try {
       const { createdSessionId, setActive } = await startOAuthFlow();
-      console.log(createdSessionId);
 
       if (createdSessionId) {
-        await setActive!({ session: createdSessionId });
+        setActive!({ session: createdSessionId });
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error("OAuth error", err);
     }
   };
 
@@ -51,6 +49,13 @@ export default function Index() {
         source={require("@/assets/images/login.png")}
         style={styles.loginImage}
       />
+      <TouchableOpacity onPress={() => signOut()}>
+        <Text>Sign Out</Text>
+      </TouchableOpacity>
+      <SignedIn>
+        <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
+      </SignedIn>
+
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>How would you like to use Threads</Text>
         <View style={styles.buttonContainer}>
